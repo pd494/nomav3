@@ -1,19 +1,26 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Button, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ProfileScreen() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("authToken"); // Clear stored token
+      router.replace("/auth/Login"); // Redirect to login screen
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Image source={{ uri: "https://randomuser.me/api/portraits/women/44.jpg" }} style={styles.image} />
-      <Text style={styles.title}>Sarah Johnson</Text>
-      <Text>Email: sarah.j@example.com</Text>
-      <Text>Date of Birth: 15 March 1990</Text>
-      <Text>Skin Type: Type II - Fair</Text>
+      <Button title="Logout" onPress={handleLogout} color="red" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 5 },
-  image: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
+  container: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
