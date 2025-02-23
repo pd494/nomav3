@@ -1,108 +1,81 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from tensorflow.keras.preprocessing import image
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+import tensorflow as tf
 import numpy as np
 import io
 from PIL import Image
-import tensorflow as tf
 import logging
+import sys
+import os
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# ✅ Ensure Flask can find `auth.py`
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "server")))
 
+from auth import auth  # ✅ Import the auth Blueprint
+
+# ✅ Initialize Flask app
 app = Flask(__name__)
 
-CORS(app, resources={
-    r"/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Accept"]
-    }
-})
+# ✅ Set up CORS
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization", "Accept"]}})
 
-# Load the model
+# ✅ Set up JWT Authentication
+app.config["JWT_SECRET_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoaGhxdmFrYWFqZXZ3d3N2bnJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDI2MzU4OSwiZXhwIjoyMDU1ODM5NTg5fQ.enipHVUtabwB3b9_LPTEP_gzXzFmnukMXbkh5a034k8"  # Replace with a secure secret
+
+jwt = JWTManager(app)
+
+# ✅ Register auth Blueprint
+app.register_blueprint(auth, url_prefix="/auth")
+
+# ✅ Load model
 try:
-    model = tf.keras.models.load_model('../detection/skin_cancer_detection.h5', 
-                                     compile=False)
-    model.compile(optimizer='adam',
-                 loss='categorical_crossentropy',
-                 metrics=['accuracy'])
-    logger.info("Model loaded successfully!")
+    model = tf.keras.models.load_model('/Users/Varun/noma/noma/detection/skin_cancer_detection.h5', compile=False)
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    logging.info("✅ Model loaded successfully!")
 except Exception as e:
-    logger.error(f"Error loading model: {e}")
+    logging.error(f"❌ Error loading model: {e}")
     raise
 
 def preprocess_image(image_bytes):
     try:
-        logger.debug(f"Starting image preprocessing, received {len(image_bytes)} bytes")
-        
-        # Convert bytes to PIL Image
         img = Image.open(io.BytesIO(image_bytes))
-        logger.debug(f"Image opened successfully. Size: {img.size}, Mode: {img.mode}")
-        
-        # Convert to RGB if necessary
         if img.mode != 'RGB':
             img = img.convert('RGB')
-            logger.debug("Converted image to RGB mode")
-            
-        # Resize to match model's expected input
         img = img.resize((224, 224))
-        logger.debug("Resized image to 224x224")
-        
-        # Convert to array and preprocess
-        img_array = image.img_to_array(img)
-        img_array = img_array / 255.0  # Normalize
+        img_array = np.array(img) / 255.0  # Normalize
         img_array = np.expand_dims(img_array, axis=0)
-        logger.debug(f"Preprocessed image array shape: {img_array.shape}")
-        
         return img_array
     except Exception as e:
-        logger.error(f"Error preprocessing image: {e}")
+        logging.error(f"❌ Error preprocessing image: {e}")
         raise
 
 @app.route('/predict', methods=['POST'])
+@jwt_required()  # ✅ Require authentication token
 def predict():
-    logger.info("Received prediction request")
-    logger.debug(f"Request headers: {dict(request.headers)}")
-    logger.debug(f"Request files: {request.files}")
-    
+    current_user = get_jwt_identity()  # ✅ Get authenticated user
+    logging.info(f"📊 Prediction request from user: {current_user}")
+
     if 'image' not in request.files:
-        logger.warning("No image found in request")
         return jsonify({'error': 'No image uploaded'}), 400
-    
+
     try:
-        # Read the image file
-        image_file = request.files['image']
-        logger.info(f"Received image: {image_file.filename}")
-        image_bytes = image_file.read()
-        logger.debug(f"Read {len(image_bytes)} bytes from image file")
-        
-        # Preprocess the image
+        image_bytes = request.files['image'].read()
         processed_image = preprocess_image(image_bytes)
-        logger.info("Image preprocessing completed")
-        
-        # Make prediction
-        logger.debug("Starting prediction")
         prediction = model.predict(processed_image)
-        predicted_class = int(np.argmax(prediction[0]))  # Convert to Python int
-        confidence = float(prediction[0][predicted_class])  # Convert to Python float
-        logger.info(f"Prediction completed. Class: {predicted_class}, Confidence: {confidence}")
-        
-        # Map prediction to label
+        predicted_class = int(np.argmax(prediction[0]))
+        confidence = float(prediction[0][predicted_class])
         class_labels = ['Benign', 'Malignant']
-        result = {
+
+        return jsonify({
             'prediction': class_labels[predicted_class],
             'confidence': confidence,
-            'isCancerous': bool(predicted_class == 1)  # Convert to Python bool
-        }
-        logger.info(f"Sending response: {result}")
-        
-        return jsonify(result)
+            'isCancerous': predicted_class == 1
+        })
         
     except Exception as e:
-        logger.error(f"Error processing request: {e}", exc_info=True)
+        logging.error(f"❌ Error processing request: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=8081, debug=True)

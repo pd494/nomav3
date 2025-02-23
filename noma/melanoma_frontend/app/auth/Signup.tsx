@@ -11,7 +11,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  const API_URL = 'http://10.0.0.232:8082';
+  const API_URL = 'http://10.0.0.208:8081';
 
   const handleSignup = async () => {
     try {
@@ -26,7 +26,7 @@ const Signup = () => {
 
       if (response.ok) {
         Alert.alert("Success", "Account created!");
-        router.push("/auth/Login"); // Navigate to login page
+        router.push("../auth/Login"); // Navigate to login page
         console.log("signup success", data);
       } else {
         Alert.alert("Signup Failed", data.error || "Please try again");
@@ -125,7 +125,7 @@ const Signup = () => {
         <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>Sign Up</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/auth/Login")} style={{ marginTop: 10 }}>
+      <TouchableOpacity onPress={() => router.push("../auth/Login")} style={{ marginTop: 10 }}>
         <Text style={{ color: "#007BFF" }}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
