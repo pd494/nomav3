@@ -1,1 +1,3 @@
-# melanomAI
+# noma
+
+skin cancer detection
