@@ -9,7 +9,7 @@ export default function Logout() {
     const logout = async () => {
       try {
         await AsyncStorage.removeItem('authToken'); // Clear auth token
-        router.replace('/auth/Login'); // Redirect to login screen
+        router.replace('../auth/Login'); // Redirect to login screen
       } catch (error) {
         console.error('Logout failed:', error);
       }

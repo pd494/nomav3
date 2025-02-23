@@ -11,7 +11,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const API_URL = 'http://10.0.0.232:8082';
+  const API_URL = 'http://10.0.0.208:8081';
+
 
   const handleLogin = async () => {
     try {
@@ -105,7 +106,7 @@ const Login = () => {
         <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>Login</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/auth/Signup")} style={{ marginTop: 10 }}>
+      <TouchableOpacity onPress={() => router.push("../auth/Signup")} style={{ marginTop: 10 }}>
         <Text style={{ color: "#007BFF" }}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
     </View>
