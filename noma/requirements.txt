@@ -1,13 +1,20 @@
-#detection
-matplotlib
+# Web Framework & Authentication
+flask
+flask-cors
+flask-jwt-extended
+
+# Database
+supabase
+
+# Machine Learning & Data Processing
+tensorflow
+keras
 numpy
 pandas
+scikit-learn
+matplotlib
 seaborn
-scikit-learn
-tensorflow
+pillow  # For image handling
 
-#types
-keras
-opencsv-python
-pillow
-scikit-learn
+# Miscellaneous
+gunicorn  # For running the Flask app in production
