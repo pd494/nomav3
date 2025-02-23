@@ -1,0 +1,15 @@
+# Ignore dataset folders
+Skin cancer ISIC The International Skin Imaging Collaboration/
+*.h5 
+detection_type/Skin cancer ISIC The International Skin Imaging Collaboration
+/Users/prasanthdendukuri/melanomAI/detection_type/Skin cancer ISIC The International Skin Imaging Collaboration
+/Users/prasanthdendukuri/melanomAI/server_detection/new_env
+server_detection/new_env
+
+# Virtual Environment
+venv/
+**/venv/
+env/
+**/env/
+new_env/
+**/new_env/
