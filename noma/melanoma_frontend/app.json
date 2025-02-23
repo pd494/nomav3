@@ -2,7 +2,6 @@
   "expo": {
     "name": "melanoma_frontend",
     "slug": "melanoma_frontend",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
