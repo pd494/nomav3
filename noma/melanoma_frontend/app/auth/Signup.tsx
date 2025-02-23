@@ -11,10 +11,12 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
+  const API_URL = 'http://10.0.0.232:8082';
+
   const handleSignup = async () => {
     try {
         console.log("signup!", { email, password, name });
-      const response = await fetch("http://127.0.0.1:8081/auth/signup", {
+      const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
