@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImageManipulator from "expo-image-manipulator";
-import axios from "axios";
+// Removed axios import due to error
 
 // ✅ Update SERVER_URL to your actual Flask server IP
 const SERVER_URL = "http://10.0.0.208:5001";  

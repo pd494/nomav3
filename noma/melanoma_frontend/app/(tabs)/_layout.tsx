@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -17,21 +18,22 @@ export default function TabLayout() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem("token");
-      console.log("Stored Token:", token); // Debugging
-      if (!token) {
-        router.replace("/auth/Login"); // Redirect to login if no token
-      } else {
-        setIsAuthenticated(true);
+    (async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        setIsAuthenticated(!!token);
+        if (!token) {
+          router.replace("/auth/Login");
+        }
+      } catch (error) {
+        router.replace("/auth/Login");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    };
-
-    checkAuth();
+    })();
   }, []);
 
-  if (isLoading) return null; // Prevents rendering before checking auth
+  if (isLoading) return null;
 
   return isAuthenticated ? (
     <Tabs
@@ -49,24 +51,31 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="rgreg"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="History"
+        name="scan"
+        options={{
+          title: 'Scan',
+          tabBarIcon: ({ color }) => <Ionicons name="camera-outline" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="history"
         options={{
           title: 'History',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="clock.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="folder-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="Profile"
+        name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />,
         }}
       />
     </Tabs>
